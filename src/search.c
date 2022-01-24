@@ -242,8 +242,10 @@ void* Search(void* arg) {
       if (!mainThread || depth < 5 || !params->timeset) continue;
 
       int sameBestMove = results->bestMoves[depth] == results->bestMoves[depth - 1];  // same move?
+      int previousSearchStability = searchStability;  
       searchStability = sameBestMove ? min(10, searchStability + 1) : 0;  // increase how stable our best move is
-      double stabilityFactor = 1.25 - 0.05 * searchStability;
+      int suddenChange = previousSearchStability == 10 && !searchStability;  // drop from stable to not
+      double stabilityFactor = suddenChange ? 2 : 1.25 - 0.05 * searchStability;
 
       double scoreDiff = results->scores[depth - 3] - results->scores[depth];
       double scoreChangeFactor = 0.1 + 0.05 * scoreDiff;
